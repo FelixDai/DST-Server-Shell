@@ -74,7 +74,7 @@ function ServerPreps()
         echo -e "\033[1;31m[info] File ~/.klei/DoNotStarveTogether has been created\033[0m"
         echo $dividing
     else
-        modConfig
+        ModConfig
         ServerStart
     fi
 }
@@ -196,7 +196,7 @@ function FilesDelete()
     fi
 }
 #-------------------------------------------------------------------------------------------
-function modConfig()
+function ModConfig()
 {
     modConfigPath="Steam/steamapps/common/Don't Starve Together Dedicated Server/mods"
     modConfigFile="dedicated_server_mods_setup.lua"
@@ -301,31 +301,45 @@ else
 
     case $input_update in
         0)
-            SystemPreps ;;
+            SystemPreps
+            ;;
         1)
-            ServerStart ;;
+            ServerStart
+            ;;
         2)
-            ServerPreps ;;
+            ServerPreps
+            ;;
         3)
-            ServerStartQuick ;;
+            ServerStartQuick
+            ;;
         4)
-            sudo screen -ls ;;
+            sudo screen -ls
+            ;;
         5)
-            sudo screen -r world ;;
+            sudo screen -r world
+            sudo screen -r caves
+            ;;
         6)
             sudo killall screen
-            echo -e "\033[32m[info] All Screens have been killed\033[0m" ;;
+            echo -e "\033[32m[info] All Screens have been killed\033[0m"
+            ;;
         7)
-            FilesBackup ;;
+            FilesBackup
+            ;;
         8)
-            FilesRecovery ;;
+            FilesRecovery
+            ;;
         9)
-            FilesDelete ;;
+            FilesDelete
+            ;;
         a)
-            modConfig ;;
+            ModConfig
+            ;;
         b)
-            UserList ;;
+            UserList
+            ;;
         *)
-            InputError ;;
+            InputError
+            ;;
     esac
 fi
