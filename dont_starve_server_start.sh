@@ -73,9 +73,6 @@ function ServerPreps()
         mkdir -p ~/.klei/DoNotStarveTogether/Cluster_1
         echo -e "\033[1;31m[info] File ~/.klei/DoNotStarveTogether has been created\033[0m"
         echo $dividing
-    else
-        ModConfig
-        ServerStart
     fi
 }
 #-------------------------------------------------------------------------------------------
