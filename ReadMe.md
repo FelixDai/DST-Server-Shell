@@ -21,17 +21,21 @@ tar -xvzf steamcmd_linux.tar.gz
 ```
 
 - Display action menu
-![](./image/ServerMenu.png)
+
+    ![menu](./image/ServerMenu.png)
 
 - Start the server
    
    * [1.start]
+   
    choose map (surface/caves) and cluster_[1~5], then, you need to create a new screen for another map manually
 
    * [2.update]
+   
    when the game update, server have to update along with it
 
    * [3.quick]
+   
    start surface and caves map together. Execute bash cmd 'top' finally 
 
 - Screen quick operations

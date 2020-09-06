@@ -88,10 +88,10 @@ function ServerStart()
 
     case $input_map in
         1)
-            sudo screen -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master
+            screen -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master
             ;;
         2)
-            sudo screen -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves
+            screen -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves
             ;;
         *)
             InputError
@@ -109,31 +109,31 @@ function ServerStartQuick()
     read input_cluster
 
     if [ -d temp_world.sh ]; then
-        sudo rm -r temp_world.sh
+        rm -r temp_world.sh
     fi
     if [ -d temp_cave.sh ]; then
-        sudo rm -r temp_cave.sh
+        rm -r temp_cave.sh
     fi
 
     echo -e "\033[33m[info] Starting World Server, Please Wait\033[0m"
-    echo sudo screen -d -m -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master > temp_world.sh
+    echo screen -d -m -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master > temp_world.sh
     . ./temp_world.sh
     sleep 10
 
     echo -e "\033[33m[info] Starting Cave Server, Please Wait\033[0m"
-    echo sudo screen -d -m -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves > temp_cave.sh
+    echo screen -d -m -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves > temp_cave.sh
     . ./temp_cave.sh
     sleep 10
 
     if [ -d temp_world.sh ]; then
-        sudo rm -r temp_world.sh
+        rm -r temp_world.sh
     fi
     if [ -d temp_cave.sh ]; then
-        sudo rm -r temp_cave.sh
+        rm -r temp_cave.sh
     fi
 
     echo -e "\033[33m[info] Current Screen Infomation\033[0m"
-    sudo screen -ls
+    screen -ls
     echo $dividing
 
     top
@@ -147,7 +147,7 @@ function FilesBackup()
     if [ -d .klei/DoNotStarveTogether ]; then
         cd .klei/DoNotStarveTogether
         if [ -d Cluster_$input_backup ]; then
-            sudo tar -zcf DSTServer_$input_backup.tar.gz Cluster_$input_backup
+            tar -zcf DSTServer_$input_backup.tar.gz Cluster_$input_backup
             echo -e "\033[33m[info] File Cluster_$input_backup has been backuped\033[0m"
         fi
         cd ..
@@ -163,9 +163,9 @@ function FilesRecovery()
         cd .klei/DoNotStarveTogether
         if [ -f DSTServer_$input_recovery.tar.gz ]; then
             if [ -d DSTServer_$input_recovery ]; then
-                sudo rm -r Cluster_$input_recovery
+                rm -r Cluster_$input_recovery
             fi
-            sudo tar -zxvf DSTServer_$input_recovery.tar.gz
+            tar -zxvf DSTServer_$input_recovery.tar.gz
             echo -e "\033[33m[info] File DSTServer_$input_recovery has been Recovered\033[0m"
         else
             echo -e "\033[31m[warn] Backup file for DSTServer_$input_recovery NOT Found\033[0m"
@@ -185,7 +185,7 @@ function FilesDelete()
     if [ -d .klei/DoNotStarveTogether ]; then
         cd .klei/DoNotStarveTogether
         if [ -d "Cluster_$input_delete" ]; then
-            sudo rm -rf Cluster_$input_delete
+            rm -rf Cluster_$input_delete
         fi
 
         echo -e "\033[33m[info] File Cluster_$input_delete has Deleted\033[0m"
@@ -207,9 +207,9 @@ function ModConfig()
         1)
             ;;
         2)
-            echo "\033[32m[info]Please input new mod ID: \033[0m"
+            echo -e "\033[32m[info]Please input new mod ID: \033[0m"
             read modId
-            echo "\033[32m[info]Please input new mod name: \033[0m"
+            echo -e "\033[32m[info]Please input new mod name: \033[0m"
             read modName
 
             echo "ServerModSetup(\"$modId\") --$modName" >> $modConfigFile
@@ -245,7 +245,7 @@ function UserList()
     echo -e "\033[1;31m[1.admin] [2.block] [3.white]\033[0m"
     read userType
 
-    userListFile=".klei/DoNotStarveTogether/Cluster_$clusterNum/"
+    userListFile="${HOME}/.klei/DoNotStarveTogether/Cluster_$clusterNum/"
 
     case $userType in
         1)
@@ -272,71 +272,75 @@ function UserList()
     esac
 }
 #-------------------------------------------------------------------------------------------
-# clear
-echo $dividing
+function main() {
+    clear
+    echo $dividing
+
+    if [ ! -d "$gamesPath" ]; then
+        echo -e "\033[31m[warn] Server Files Not Found\033[0m"
+        echo $dividing
+        SystemPreps
+        ServerPreps
+    else
+        echo -e "\033[32m[info] Server Files Found\033[0m"
+        echo $dividing
+
+        echo -en "\033[1;31m"
+        echo -e "Choose An Action To Perform"
+        echo -e "SysLib Set    [0.Prepare]"
+        echo -e "Game Server   [1.start]   [2.update]  [3.quick]"
+        echo -e "Unix Screen   [4.info]    [5.attach]  [6.kill]"
+        echo -e "Save Files    [7.backup]  [8.recover] [9.delete]"
+        echo -e "Game Config   [a.mod]     [b.user]"
+        echo -en "\033[0m"
+
+        read input_update
+
+        case $input_update in
+            0)
+                SystemPreps
+                ;;
+            1)
+                ServerStart
+                ;;
+            2)
+                ServerPreps
+                ;;
+            3)
+                ServerStartQuick
+                ;;
+            4)
+                screen -ls
+                ;;
+            5)
+                screen -r world
+                screen -r caves
+                ;;
+            6)
+                killall screen
+                echo -e "\033[32m[info] All Screens have been killed\033[0m"
+                ;;
+            7)
+                FilesBackup
+                ;;
+            8)
+                FilesRecovery
+                ;;
+            9)
+                FilesDelete
+                ;;
+            a)
+                ModConfig
+                ;;
+            b)
+                UserList
+                ;;
+            *)
+                InputError
+                ;;
+        esac
+    fi
+}
 
 cd ~
-
-if [ ! -d "$gamesPath" ]; then
-    echo -e "\033[31m[warn] Server Files Not Found\033[0m"
-    echo $dividing
-    SystemPreps
-    ServerPreps
-else
-    echo -e "\033[32m[info] Server Files Found\033[0m"
-    echo $dividing
-
-    echo -en "\033[1;31m"
-    echo -e "Choose An Action To Perform"
-    echo -e "SysLib Set    [0.Prepare]"
-    echo -e "Game Server   [1.start]   [2.update]  [3.quick]"
-    echo -e "Unix Screen   [4.info]    [5.attach]  [6.kill]"
-    echo -e "Save Files    [7.backup]  [8.recover] [9.delete]"
-    echo -e "Game Config   [a.mod]     [b.user]"
-    echo -en "\033[0m"
-    read input_update
-
-    case $input_update in
-        0)
-            SystemPreps
-            ;;
-        1)
-            ServerStart
-            ;;
-        2)
-            ServerPreps
-            ;;
-        3)
-            ServerStartQuick
-            ;;
-        4)
-            sudo screen -ls
-            ;;
-        5)
-            sudo screen -r world
-            sudo screen -r caves
-            ;;
-        6)
-            sudo killall screen
-            echo -e "\033[32m[info] All Screens have been killed\033[0m"
-            ;;
-        7)
-            FilesBackup
-            ;;
-        8)
-            FilesRecovery
-            ;;
-        9)
-            FilesDelete
-            ;;
-        a)
-            ModConfig
-            ;;
-        b)
-            UserList
-            ;;
-        *)
-            InputError
-            ;;
-    esac
-fi
+main
