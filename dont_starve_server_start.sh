@@ -313,8 +313,8 @@ function main() {
                 screen -ls
                 ;;
             5)
-                screen -r world
-                screen -r caves
+                screen -x world
+                screen -x caves
                 ;;
             6)
                 killall screen
