@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------
-# fgc0109 	2015.11.15
+# fgc0109 2015.11.15
 # Kaguya	2019.09.16
 #-------------------------------------------------------------------------------------------
 dividing="================================================================================"
@@ -40,7 +40,7 @@ function CommandPreps()
         mkdir $commandPath
     fi
 
-    cd $commandPath
+    cd $commandPath || exit
 
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
     tar -xvzf steamcmd_linux.tar.gz
@@ -61,7 +61,7 @@ function ServerPreps()
         CommandPreps
     else
         echo -e "\033[33m[info] Steam Command Line Found\033[0m"
-        cd $commandPath
+        cd $commandPath || exit
     fi
 
     ./$commandFile +login anonymous +app_update 343050 validate +quit
@@ -78,20 +78,20 @@ function ServerPreps()
 #-------------------------------------------------------------------------------------------
 function ServerStart()
 {
-    cd "$gamesPath"
+    cd "$gamesPath" || exit
 
     echo -e "\033[32m[info] Choose Map [1.surface] [2.caves]\033[0m"
-    read input_map
+    read -r input_map
 
     echo -e "\033[32m[info] Choose Cluster [1-5]\033[0m"
-    read input_cluster
+    read -r input_cluster
 
     case $input_map in
         1)
-            screen -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master
+            screen -S "world" ./$gamesFile -cluster Cluster_"$input_cluster" -shard Master
             ;;
         2)
-            screen -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves
+            screen -S "caves" ./$gamesFile -cluster Cluster_"$input_cluster" -shard Caves
             ;;
         *)
             InputError
@@ -103,10 +103,10 @@ function ServerStart()
 #-------------------------------------------------------------------------------------------
 function ServerStartQuick()
 {
-    cd "$gamesPath"
+    cd "$gamesPath" || exit
 
     echo -e "\033[32m[info] Choose Cluster [1-5]\033[0m"
-    read input_cluster
+    read -r input_cluster
 
     if [ -d temp_world.sh ]; then
         rm -r temp_world.sh
@@ -116,12 +116,12 @@ function ServerStartQuick()
     fi
 
     echo -e "\033[33m[info] Starting World Server, Please Wait\033[0m"
-    echo screen -d -m -S "world" ./$gamesFile -cluster Cluster_$input_cluster -shard Master > temp_world.sh
+    echo screen -d -m -S "world" ./$gamesFile -cluster Cluster_"$input_cluster" -shard Master > temp_world.sh
     . ./temp_world.sh
     sleep 10
 
     echo -e "\033[33m[info] Starting Cave Server, Please Wait\033[0m"
-    echo screen -d -m -S "caves" ./$gamesFile -cluster Cluster_$input_cluster -shard Caves > temp_cave.sh
+    echo screen -d -m -S "caves" ./$gamesFile -cluster Cluster_"$input_cluster" -shard Caves > temp_cave.sh
     . ./temp_cave.sh
     sleep 10
 
@@ -142,12 +142,12 @@ function ServerStartQuick()
 function FilesBackup()
 {
     echo -e "\033[32m[info] Choose Cluster To Backup [1-5]\033[0m"
-    read input_backup
+    read -r input_backup
 
     if [ -d .klei/DoNotStarveTogether ]; then
-        cd .klei/DoNotStarveTogether
-        if [ -d Cluster_$input_backup ]; then
-            tar -zcf DSTServer_$input_backup.tar.gz Cluster_$input_backup
+        cd .klei/DoNotStarveTogether || exit
+        if [ -d Cluster_"$input_backup" ]; then
+            tar -zcf DSTServer_"$input_backup".tar.gz Cluster_"$input_backup"
             echo -e "\033[33m[info] File Cluster_$input_backup has been backuped\033[0m"
         fi
         cd ..
@@ -157,15 +157,15 @@ function FilesBackup()
 function FilesRecovery()
 {
     echo -e "\033[32m[info] Choose Cluster To Recovery [1-5]\033[0m"
-    read input_recovery
+    read -r input_recovery
 
     if [ -d .klei/DoNotStarveTogether ]; then
-        cd .klei/DoNotStarveTogether
-        if [ -f DSTServer_$input_recovery.tar.gz ]; then
+        cd .klei/DoNotStarveTogether || exit
+        if [ -f DSTServer_"$input_recovery".tar.gz ]; then
             if [ -d DSTServer_$input_recovery ]; then
-                rm -r Cluster_$input_recovery
+                rm -r Cluster_"$input_recovery"
             fi
-            tar -zxvf DSTServer_$input_recovery.tar.gz
+            tar -zxvf DSTServer_"$input_recovery".tar.gz
             echo -e "\033[33m[info] File DSTServer_$input_recovery has been Recovered\033[0m"
         else
             echo -e "\033[31m[warn] Backup file for DSTServer_$input_recovery NOT Found\033[0m"
@@ -180,12 +180,12 @@ function FilesRecovery()
 function FilesDelete()
 {
     echo -e "\033[32m[info] Choose File To Delete [1-5]\033[0m"
-    read input_delete
+    read -r input_delete
 
     if [ -d .klei/DoNotStarveTogether ]; then
-        cd .klei/DoNotStarveTogether
+        cd .klei/DoNotStarveTogether || exit
         if [ -d "Cluster_$input_delete" ]; then
-            rm -rf Cluster_$input_delete
+            rm -rf Cluster_"$input_delete"
         fi
 
         echo -e "\033[33m[info] File Cluster_$input_delete has Deleted\033[0m"
@@ -201,16 +201,16 @@ function ModConfig()
     echo $dividing
     echo -e "\033[32m[info] Mod Config Menu\033[0m"
     echo -e "\033[1;31m[1.new] [2.add] [3.delete]\033[0m"
-    read modSetInput
+    read -r modSetInput
 
     case $modSetInput in
         1)
             ;;
         2)
             echo -e "\033[32m[info]Please input new mod ID: \033[0m"
-            read modId
+            read -r modId
             echo -e "\033[32m[info]Please input new mod name: \033[0m"
-            read modName
+            read -r modName
 
             echo "ServerModSetup(\"$modId\") --$modName" >> $modConfigFile
             ;;
@@ -233,17 +233,17 @@ function UserList()
 
     echo -e "\033[32m[info] User List Set Menu\033[0m"
     echo -e "\033[1;31m[1.add] [2.delete]\033[0m"
-    read setType
+    read -r setType
 
     echo -e "\033[32m[info] Please input Klei user ID: \033[0m"
-    read userId
+    read -r userId
 
     echo -e "\033[32m[info] Please input Game Cluster Number: \033[0m"
-    read clusterNum
+    read -r clusterNum
 
     echo -e "\033[32m[info] Please input user type: \033[0m"
     echo -e "\033[1;31m[1.admin] [2.block] [3.white]\033[0m"
-    read userType
+    read -r userType
 
     userListFile="${HOME}/.klei/DoNotStarveTogether/Cluster_$clusterNum/"
 
@@ -261,7 +261,7 @@ function UserList()
 
     case $setType in
         1)
-            echo $userId >> $userListFile
+            echo "$userId" >> $userListFile
             ;;
         2)
             sed -ie "/$userId/d" $userListFile
@@ -294,7 +294,7 @@ function main() {
         echo -e "Game Config   [a.mod]     [b.user]"
         echo -en "\033[0m"
 
-        read input_update
+        read -r input_update
 
         case $input_update in
             0)
@@ -342,5 +342,5 @@ function main() {
     fi
 }
 
-cd ~
+cd ~ || exit
 main
